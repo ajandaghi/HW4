@@ -9,7 +9,7 @@ private String cinemaPass;
 private Long totalSoldTicketAmmount=0L;
 private boolean isVerified;
 
-    public Cinema(Connection connection, String cinemaName, String cinemaUser, String cinemaPass) throws SQLException {
+    public Cinema(Connection connection, String cinemaName, String cinemaUser, String cinemaPass)  {
         this.connection = connection;
         this.cinemaName = cinemaName;
         this.cinemaUser = cinemaUser;

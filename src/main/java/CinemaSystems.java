@@ -22,7 +22,7 @@ private String user="";
 private  String adminUser="admin";
 private String adminPass="admin";
 
-    public CinemaSystems(Connection connection) throws SQLException {
+    public CinemaSystems(Connection connection)  {
         this.connection=connection;
         cinemaRepository =new CinemaRepository(connection);
         ticketTypeRepository=new TicketTypeRepository(connection);
@@ -30,7 +30,7 @@ private String adminPass="admin";
         userRepository=new UserRepository(connection);
     }
 
-    public  void createTicketType(String[] cmd) throws SQLException, ParseException {
+    public  void createTicketType(String[] cmd)  {
        String newId=  ticketTypeRepository.getLastIndexId()+cUser;
         TicketType ticketType=new TicketType(cUser,newId,cmd[0], Timestamp.valueOf(cmd[1]) ,Long.parseLong(cmd[2]),Integer.parseInt(cmd[3]));
 
@@ -46,24 +46,24 @@ private String adminPass="admin";
 
 
 
-    public void addCinema(String cinemaName,String cinemaUser,String cinemaPass) throws SQLException {
+    public void addCinema(String cinemaName,String cinemaUser,String cinemaPass)  {
 
     cinemaRepository.insertCinema(new Cinema(connection,cinemaName,cinemaUser,cinemaPass));
 }
 
-public void addUser(String name, String userName, String pass, String nationalCode) throws SQLException {
+public void addUser(String name, String userName, String pass, String nationalCode)  {
     userRepository.insertCinema(new UserProfile(connection,name,userName,pass,nationalCode));
 
 }
 
-public boolean checkCinemaUser(String cinemaUser) throws SQLException {
+public boolean checkCinemaUser(String cinemaUser)  {
 if(cinemaRepository.searchByUser(cinemaUser)!=null){
     return true;
 }
 return false;
 }
 
-public boolean cinemaLogin(String cinemaUser, String pass) throws SQLException {
+public boolean cinemaLogin(String cinemaUser, String pass)  {
         if (cinemaRepository.searchByUser(cinemaUser)!=null) {
             if (cinemaRepository.searchByUser(cinemaUser).getCinemaUser().equals(cinemaUser) && cinemaRepository.searchByUser(cinemaUser).getCinemaPass().equals(pass)) {
                 cUser=cinemaUser;
@@ -73,7 +73,7 @@ public boolean cinemaLogin(String cinemaUser, String pass) throws SQLException {
     return false;
 }
 
-    public boolean userLogin(String user, String pass) throws SQLException {
+    public boolean userLogin(String user, String pass) {
         if(userRepository.searchByUser(user)!=null ) {
             if (userRepository.searchByUser(user).getUserName().equals(user) && userRepository.searchByUser(user).getPass().equals(pass)) {
                 this.user = user;
@@ -91,17 +91,17 @@ public boolean cinemaLogin(String cinemaUser, String pass) throws SQLException {
         return false;
     }
 
-    public void showUnverifiedCinema() throws SQLException {
+    public void showUnverifiedCinema()  {
 
         for(int i=0;i<cinemaRepository.unverifiedCinemaList().length;i++){
             System.out.println((i+1)+". Cinema Name:"+cinemaRepository.unverifiedCinemaList()[i].getCinemaName()+" user:"+cinemaRepository.unverifiedCinemaList()[i].getCinemaUser()+" totalTicketAmount:"+cinemaRepository.unverifiedCinemaList()[i].getTotalSoldTicketAmmount());
         }
     }
-    public void verifyCinema(int i) throws SQLException {
+    public void verifyCinema(int i)  {
         cinemaRepository.verifyCinema(cinemaRepository.unverifiedCinemaList()[i]);
     }
 
-    public void showAllAvailableTicket() throws SQLException {
+    public void showAllAvailableTicket()  {
         if(ticketTypeRepository.showAllAvailable()!=null){
            for(int i=0;i<ticketTypeRepository.showAllAvailable().length;i++) {
                System.out.println((i+1)+" "+ticketTypeRepository.showAllAvailable()[i].toString());
@@ -110,7 +110,7 @@ public boolean cinemaLogin(String cinemaUser, String pass) throws SQLException {
             System.out.println("no available ticket");
     }
 
-    public void searchByFilmName(String filmName) throws SQLException {
+    public void searchByFilmName(String filmName)  {
         if(ticketTypeRepository.searchByFilmName(filmName)!=null){
             for(int i=0;i<ticketTypeRepository.searchByFilmName(filmName).length;i++) {
                 System.out.println((i+1)+" "+ticketTypeRepository.searchByFilmName(filmName)[i].toString());
@@ -120,7 +120,7 @@ public boolean cinemaLogin(String cinemaUser, String pass) throws SQLException {
 
     }
 
-    public void orderTicketFromAll(String input) throws SQLException {
+    public void orderTicketFromAll(String input)  {
 ticketRepository.orderTicket(new Tickets(user,ticketTypeRepository.showAllAvailable()[Integer.parseInt(input)-1].getTicketId(),connection));
         cinemaRepository.addSoldMoney(ticketTypeRepository.showAllAvailable()[Integer.parseInt(input)-1].getCinemaUser(),ticketTypeRepository.showAllAvailable()[Integer.parseInt(input)-1].getPrice());
         ticketTypeRepository.addToSoldTicket(ticketTypeRepository.showAllAvailable()[Integer.parseInt(input)-1].getTicketId());
@@ -128,14 +128,14 @@ ticketRepository.orderTicket(new Tickets(user,ticketTypeRepository.showAllAvaila
     }
 
 
-    public void orderTicketFromFilmName(String filmName, String input1) throws SQLException {
+    public void orderTicketFromFilmName(String filmName, String input1)  {
         ticketRepository.orderTicket(new Tickets(user,ticketTypeRepository.searchByFilmName(filmName)[Integer.parseInt(input1)-1].getTicketId(),connection));
         cinemaRepository.addSoldMoney(ticketTypeRepository.searchByFilmName(filmName)[Integer.parseInt(input1)-1].getCinemaUser(),ticketTypeRepository.searchByFilmName(filmName)[Integer.parseInt(input1)-1].getPrice());
         ticketTypeRepository.addToSoldTicket(ticketTypeRepository.searchByFilmName(filmName)[Integer.parseInt(input1)-1].getTicketId());
 
     }
 
-    public void searchByDate(String filmDate) throws SQLException {
+    public void searchByDate(String filmDate)  {
         if(ticketTypeRepository.searchByDate(Timestamp.valueOf(filmDate))!=null){
             for(int i=0;i<ticketTypeRepository.searchByDate(Timestamp.valueOf(filmDate)).length;i++) {
                 System.out.println((i+1)+" "+ticketTypeRepository.searchByDate(Timestamp.valueOf(filmDate))[i].toString());
@@ -145,14 +145,14 @@ ticketRepository.orderTicket(new Tickets(user,ticketTypeRepository.showAllAvaila
 
     }
 
-    public void orderFromDate(String filmDate, String input) throws SQLException {
+    public void orderFromDate(String filmDate, String input)  {
         ticketRepository.orderTicket(new Tickets(user,ticketTypeRepository.searchByDate(Timestamp.valueOf(filmDate))[Integer.parseInt(input)-1].getTicketId(),connection));
         cinemaRepository.addSoldMoney(ticketTypeRepository.searchByDate(Timestamp.valueOf(filmDate))[Integer.parseInt(input)-1].getCinemaUser(),ticketTypeRepository.searchByDate(Timestamp.valueOf(filmDate))[Integer.parseInt(input)-1].getPrice());
         ticketTypeRepository.addToSoldTicket(ticketTypeRepository.searchByDate(Timestamp.valueOf(filmDate))[Integer.parseInt(input)-1].getTicketId());
 
     }
 
-    public void searchByfNameAndDate(String[] input) throws SQLException {
+    public void searchByfNameAndDate(String[] input)  {
         if (ticketTypeRepository.searchByfNameAndDate(input[0], Timestamp.valueOf(input[1])) != null) {
             for (int i = 0; i < ticketTypeRepository.searchByfNameAndDate(input[0], Timestamp.valueOf(input[1])).length; i++) {
                 System.out.println((i + 1) + " " + ticketTypeRepository.searchByfNameAndDate(input[0], Timestamp.valueOf(input[1]))[i].toString());
@@ -163,7 +163,7 @@ ticketRepository.orderTicket(new Tickets(user,ticketTypeRepository.showAllAvaila
 
     }
 
-    public void orderFromfNameAndDate(String[] input, String input1) throws SQLException {
+    public void orderFromfNameAndDate(String[] input, String input1)  {
         ticketRepository.orderTicket(new Tickets(user,ticketTypeRepository.searchByfNameAndDate(input[0], Timestamp.valueOf(input[1]))[Integer.parseInt(input1)-1].getTicketId(),connection));
         cinemaRepository.addSoldMoney(ticketTypeRepository.searchByfNameAndDate(input[0], Timestamp.valueOf(input[1]))[Integer.parseInt(input1)-1].getCinemaUser(),ticketTypeRepository.searchByfNameAndDate(input[0], Timestamp.valueOf(input[1]))[Integer.parseInt(input1)-1].getPrice());
         ticketTypeRepository.addToSoldTicket(ticketTypeRepository.searchByfNameAndDate(input[0], Timestamp.valueOf(input[1]))[Integer.parseInt(input1)-1].getTicketId());

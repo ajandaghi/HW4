@@ -1,3 +1,7 @@
+import exceptions.NotValidDateTime;
+import exceptions.NotValidInputFormat;
+import exceptions.NotValidNationalId;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLOutput;
@@ -8,12 +12,12 @@ public class ConsoleMenus {
     private CinemaSystems cinemaSystems;
 
     Scanner scanner=new Scanner(System.in);
-    public ConsoleMenus(Connection connection) throws SQLException {
+    public ConsoleMenus(Connection connection)  {
         this.connection = connection;
         cinemaSystems=new CinemaSystems(connection);
     }
 
-    public void showMainMenu() throws SQLException, ParseException {
+    public void showMainMenu()  {
         System.out.println("select number of what you want to do");
         System.out.println("-1.exit");
         System.out.println("1.Login to System");
@@ -35,7 +39,7 @@ public class ConsoleMenus {
         }
     }
 
-    private void loginMenu() throws SQLException, ParseException {
+    private void loginMenu()  {
         System.out.println("select number of what you want to do.");
         System.out.println("-1.return main menu");
         System.out.println("o.login  Administrator");
@@ -61,7 +65,7 @@ public class ConsoleMenus {
         }
     }
 
-    private void registerMenu() throws SQLException, ParseException {
+    private void registerMenu()  {
         System.out.println("select number of what you want to do?");
         System.out.println("-1.return main menu");
         System.out.println("1.register new Cinema");
@@ -84,7 +88,7 @@ public class ConsoleMenus {
         }
     }
 
-    private void doRegister(String type) throws SQLException, ParseException {
+    private void doRegister(String type)  {
         String[] cmd= null;
 
         switch (type) {
@@ -123,9 +127,15 @@ public class ConsoleMenus {
             registerMenu();
                }
                 if (cinemaSystems.getUserRepository().searchByUser(cmd[1]) == null){
-                    cinemaSystems.addUser(cmd[0], cmd[1], cmd[2],cmd[3]);
-                    System.out.println("successfully created.");
-                    loginMenu();
+                    try {
+                        checkNationalId(cmd[3]);
+                        cinemaSystems.addUser(cmd[0], cmd[1], cmd[2], cmd[3]);
+                        System.out.println("successfully created.");
+                        loginMenu();
+                    } catch (NotValidNationalId e){
+                        e.printStackTrace();
+                    }
+                    doRegister(type);
                 } else{
                     System.out.println("cinema user is unavailable, Choose another one!");
                     doRegister(type);
@@ -135,7 +145,7 @@ public class ConsoleMenus {
         }
     }
 
-    private void doLogin(String type) throws SQLException, ParseException {
+    private void doLogin(String type) {
 
         String user="";
         String pass="";
@@ -225,7 +235,7 @@ public class ConsoleMenus {
 
     }
 
-    private void adminMenu() throws SQLException, ParseException {
+    private void adminMenu()  {
         System.out.println("select number of Cinema what you want to verify:");
         System.out.println("-1. logout");
         System.out.println("0.show all cinema status");
@@ -250,7 +260,7 @@ public class ConsoleMenus {
 
     }
 
-    private void UserMenu() throws SQLException, ParseException {
+    private void UserMenu()   {
         System.out.println("select number of what you want to do.");
         System.out.println("0.logout");
         System.out.println("1.show all available tickets / order:");
@@ -320,6 +330,11 @@ public class ConsoleMenus {
                 System.out.println("-1.return user menu");
 
                String[] input2=scanner.nextLine().split("/");
+               try{
+                   checkInputFormat(input2,2);
+               } catch (NotValidInputFormat e){
+                   e.printStackTrace();
+               }
                 if (!input2[0].equals("-1")) {
                     cinemaSystems.searchByfNameAndDate(input2);
                     System.out.println("enter number of ticket you want to select:");
@@ -346,7 +361,7 @@ public class ConsoleMenus {
         }
     }
 
-    private void cinemaMenu() throws SQLException, ParseException {
+    private void cinemaMenu()  {
         System.out.println("select number of what you want:");
 
         if (cinemaSystems.getCinemaRepository().isVerified(cinemaSystems.getcUser())) {
@@ -372,7 +387,12 @@ public class ConsoleMenus {
                 }else if(cmd.length != 4){
                     cinemaMenu();
                 }
-                cinemaSystems.createTicketType(cmd);
+                try {
+                    checkDateTime(cmd[1]);
+                    cinemaSystems.createTicketType(cmd);
+                } catch(NotValidDateTime e){
+                    e.printStackTrace();
+                }
                 cinemaMenu();
                 break;
             case "2":
@@ -403,5 +423,26 @@ public class ConsoleMenus {
         }
 
     }
+   public void checkInputFormat(String[] cmd, int n){
+        if (cmd.length!=n){
+            throw new NotValidInputFormat("invalid input format: check your component");
+        }
+   }
+   public void checkDateTime(String dateTime){
+        if(!dateTime.split(" ")[0].matches("^\\d{4}-\\d{2}-\\d{2}") || !dateTime.split(" ")[1].matches("^\\d{2}:\\d{2}:\\d{2}")){
+            throw new NotValidDateTime("not valid date time");
+        }
+   }
+
+   public void checkNationalId(String nationalId){
+       char[] nId=nationalId.toCharArray();
+        if(nationalId.length()!=10){
+            throw new NotValidNationalId("your national id must has 10 length");
+        }
+        for (int i=0;i<10;i++){
+            if(Character.isDigit(nId[i]))
+            throw new NotValidNationalId("national id must just contains digit");
+        }
+   }
 
 }
